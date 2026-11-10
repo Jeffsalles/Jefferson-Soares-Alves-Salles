@@ -1,0 +1,6 @@
+{
+  "name": "Sistema Escola Conectada (SEC) - UFMS Digital",
+  "description": "Plataforma web dinâmica e responsiva de gestão de comunicação direta e mensageria unidirecional entre a instituição de ensino EMEIEF Prof. José Antônio de Miranda e os responsáveis, com controle de acesso RBAC e fila hierárquica de validação.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
