@@ -1,15 +1,15 @@
 import React from 'react';
 import { 
   LayoutDashboard, 
-  Send, 
+  Database,
   Clock, 
   Users, 
   Smartphone, 
+  FolderGit2,
   FileText,
-  BadgeAlert
 } from 'lucide-react';
 
-export type ActiveTab = 'dashboard' | 'compose' | 'queue' | 'students' | 'simulator' | 'report';
+export type ActiveTab = 'dashboard' | 'database' | 'queue' | 'students' | 'simulator' | 'git' | 'report';
 
 interface NavigationProps {
   activeTab: ActiveTab;
@@ -28,14 +28,13 @@ export const Navigation: React.FC<NavigationProps> = ({
       label: 'Painel & Impacto',
       icon: LayoutDashboard,
       badge: null,
-      desc: 'Métricas e economia sustentável',
     },
     {
-      id: 'compose' as ActiveTab,
-      label: 'Redigir Comunicado',
-      icon: Send,
-      badge: null,
-      desc: 'Injeção de cabeçalho padronizado',
+      id: 'database' as ActiveTab,
+      label: 'Banco de Dados & SQL',
+      icon: Database,
+      badge: 'SQLite',
+      badgeColor: 'bg-blue-600 text-white text-[10px]',
     },
     {
       id: 'queue' as ActiveTab,
@@ -43,37 +42,40 @@ export const Navigation: React.FC<NavigationProps> = ({
       icon: Clock,
       badge: pendingCount > 0 ? pendingCount : null,
       badgeColor: 'bg-amber-500 text-white',
-      desc: 'Retenção hierárquica docente',
     },
     {
       id: 'students' as ActiveTab,
-      label: 'Alunos & Responsáveis',
+      label: 'Alunos & CRUD',
       icon: Users,
       badge: null,
-      desc: 'School+ & TecSystem espelhados',
     },
     {
       id: 'simulator' as ActiveTab,
-      label: 'Simulador WhatsApp Pais',
+      label: 'WhatsApp Pais',
       icon: Smartphone,
-      badge: 'Unidirecional',
+      badge: '1-Via',
       badgeColor: 'bg-emerald-600 text-white text-[10px]',
-      desc: 'Recepção mobile dos responsáveis',
+    },
+    {
+      id: 'git' as ActiveTab,
+      label: 'Controle Git',
+      icon: FolderGit2,
+      badge: 'Git',
+      badgeColor: 'bg-slate-800 text-white text-[10px]',
     },
     {
       id: 'report' as ActiveTab,
-      label: 'Relatório Módulo 2 (UFMS)',
+      label: 'Relatório Módulo 3',
       icon: FileText,
       badge: 'ABNT',
       badgeColor: 'bg-indigo-600 text-white text-[10px]',
-      desc: 'Documentação acadêmica oficial',
     },
   ];
 
   return (
-    <nav className="bg-white border-b border-slate-200" aria-label="Navegação Principal">
+    <nav className="bg-white border-b border-slate-200 print:hidden" aria-label="Navegação Principal">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex overflow-x-auto space-x-1 sm:space-x-2 py-2.5 no-scrollbar">
+        <div className="flex overflow-x-auto space-x-1 py-2.5 no-scrollbar">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -82,18 +84,18 @@ export const Navigation: React.FC<NavigationProps> = ({
                 key={item.id}
                 onClick={() => onTabChange(item.id)}
                 type="button"
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
                   isActive
                     ? 'bg-blue-50 text-blue-800 shadow-xs border border-blue-200/80 font-bold'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent'
                 }`}
                 aria-current={isActive ? 'page' : undefined}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-slate-500'}`} />
+                <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-blue-600' : 'text-slate-500'}`} />
                 <span>{item.label}</span>
                 {item.badge && (
                   <span
-                    className={`ml-1 px-1.5 py-0.5 rounded-full text-[11px] font-bold ${
+                    className={`ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
                       item.badgeColor || 'bg-blue-600 text-white'
                     }`}
                   >

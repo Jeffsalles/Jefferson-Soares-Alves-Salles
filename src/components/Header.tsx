@@ -13,6 +13,7 @@ import {
 
 interface HeaderProps {
   currentProfile: UserProfile;
+  profiles?: UserProfile[];
   onProfileChange: (profile: UserProfile) => void;
   pendingCount: number;
   onOpenCompose: () => void;
@@ -20,6 +21,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   currentProfile,
+  profiles = PROFILES,
   onProfileChange,
   pendingCount,
   onOpenCompose,
@@ -40,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+    <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs print:hidden">
       {/* Top institution bar */}
       <div className="bg-slate-900 text-slate-300 text-xs py-1.5 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
@@ -53,42 +55,42 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div className="flex items-center gap-3 text-slate-400">
             <span>Acadêmico: <strong className="text-slate-200">Jefferson Soares Alves Salles</strong></span>
-            <span className="hidden sm:inline bg-slate-800 px-2 py-0.5 rounded text-[11px] text-emerald-400 border border-slate-700">Módulo 2: HTML/CSS & Framework</span>
+            <span className="hidden sm:inline bg-slate-800 px-2 py-0.5 rounded text-[11px] text-emerald-400 border border-slate-700">Módulo 3: Banco de Dados & Git</span>
           </div>
         </div>
       </div>
 
       {/* Main navigation header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
         {/* Brand identity */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-700 via-indigo-700 to-slate-900 flex items-center justify-center text-white shadow-md shadow-blue-900/20 shrink-0">
             <School className="w-5 h-5 text-white" />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-lg font-black text-slate-900 tracking-tight">SEC</span>
               <span className="text-slate-300">|</span>
-              <span className="text-xs font-semibold text-slate-600">Sistema Escola Conectada</span>
-              <span className="text-[10px] font-bold uppercase px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded">
+              <span className="text-xs font-semibold text-slate-600 whitespace-nowrap">Sistema Escola Conectada</span>
+              <span className="text-[10px] font-bold uppercase px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded whitespace-nowrap">
                 v2.0 Web
               </span>
             </div>
-            <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
-              <span>Mensageria Unidirecional Oficial</span>
+            <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 flex-wrap">
+              <span className="whitespace-nowrap">Mensageria Unidirecional Oficial</span>
               <span className="text-slate-300">•</span>
-              <span className="text-emerald-700 font-semibold flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-emerald-600" /> LGPD 13.709/18
+              <span className="text-emerald-700 font-semibold flex items-center gap-1 whitespace-nowrap">
+                <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" /> LGPD 13.709/18
               </span>
             </div>
           </div>
         </div>
 
         {/* User Role Switcher & Primary Action */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 min-w-0">
           {/* Role selector dropdown */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
-            <label htmlFor="role-select" className="px-2 font-medium text-slate-600 flex items-center gap-1">
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs w-full sm:w-auto min-w-0 max-w-full">
+            <label htmlFor="role-select" className="px-2 font-medium text-slate-600 flex items-center gap-1 shrink-0">
               <UserCheck className="w-3.5 h-3.5 text-slate-500" />
               <span className="hidden sm:inline">Simular Perfil:</span>
             </label>
@@ -96,12 +98,12 @@ export const Header: React.FC<HeaderProps> = ({
               id="role-select"
               value={currentProfile.id}
               onChange={(e) => {
-                const found = PROFILES.find((p) => p.id === e.target.value);
+                const found = profiles.find((p) => p.id === e.target.value);
                 if (found) onProfileChange(found);
               }}
-              className="bg-white border border-slate-200 text-slate-800 font-semibold py-1.5 px-3 rounded-lg shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              className="bg-white border border-slate-200 text-slate-800 font-semibold py-1.5 px-2.5 rounded-lg shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer w-full sm:w-auto min-w-0 max-w-full truncate"
             >
-              {PROFILES.map((p) => (
+              {profiles.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.cargo} — {p.nome}
                 </option>
@@ -110,7 +112,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Role status pill */}
-          <div className="hidden lg:block">
+          <div className="hidden xl:block shrink-0">
             {getRoleBadge(currentProfile.papel)}
           </div>
 
@@ -118,7 +120,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onOpenCompose}
             type="button"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm rounded-xl shadow-sm shadow-blue-500/25 transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm rounded-xl shadow-sm shadow-blue-500/25 transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer whitespace-nowrap shrink-0"
           >
             <Send className="w-4 h-4" />
             <span>Redigir Comunicado</span>

@@ -1,24 +1,133 @@
 import React, { useState } from 'react';
-import { 
-  FileText, 
-  Copy, 
-  Check, 
-  Printer, 
-  ExternalLink, 
-  Github, 
-  BookOpen, 
-  Layers, 
-  ShieldCheck, 
+import {
+  Copy,
+  Check,
+  Printer,
+  ExternalLink,
+  Github,
+  Layers,
   Sparkles,
-  Download
+  Database,
+  GitBranch,
+  ShieldCheck,
+  Table2,
+  Terminal,
 } from 'lucide-react';
+import type { GitInfoResponse, TableSchemaInfo } from '../types';
 
-export const DocumentationReportView: React.FC = () => {
+interface DocumentationReportViewProps {
+  schemaTables?: TableSchemaInfo[];
+  gitInfo?: GitInfoResponse | null;
+  studentCount?: number;
+  messageCount?: number;
+  auditLogsCount?: number;
+}
+
+export const DocumentationReportView: React.FC<DocumentationReportViewProps> = ({
+  schemaTables = [],
+  gitInfo = null,
+  studentCount = 6,
+  messageCount = 5,
+  auditLogsCount = 2,
+}) => {
   const [copied, setCopied] = useState(false);
+  const [selectedModule, setSelectedModule] = useState<'m3' | 'm2'>('m3');
 
   const githubUrl = 'https://github.com/jefferson-salles/sec-escola-conectada';
+  const totalTables = schemaTables.length || 7;
+  const totalCommits = gitInfo?.totalCommits ?? 0;
 
-  const fullReportText = `
+  const module3ReportText = `
+TEMPLATE DO ESTUDANTE
+Banco de Dados e Controle de versão
+AVALIAÇÃO DO MÓDULO 3 - Banco de Dados e Controle de versão
+
+Projeto de Extensão: Programa de Extensão UFMS Digital (95DX7.200525)
+Nome completo: Jefferson Soares Alves Salles
+Disciplina: Projeto Integrador de Tecnologia da Informação
+Semestre letivo: 2026.2
+Curso: Tecnologia da Informação
+Público-alvo: Gestores escolares, secretários, professores, equipe pedagógica e pais/responsáveis dos alunos da rede municipal de ensino.
+Local de realização: EMEIEF Professor José Antônio de Miranda
+Título da ação: SISTEMA ESCOLA CONECTADA (SEC): MODELAGEM RELACIONAL DE BANCO DE DADOS E VERSIONAMENTO PARA COMUNICAÇÃO ESCOLAR UNIDIRECIONAL
+
+Resumo:
+O presente relatório apresenta a evolução arquitetural do Sistema Escola Conectada (SEC), desenvolvido no Programa de Extensão UFMS Digital para a EMEIEF Professor José Antônio de Miranda, com foco na modelagem de banco de dados relacional e na implantação de controle de versão profissional. A solução substitui o armazenamento volátil e os processos manuais em papel por um banco de dados relacional normalizado até a Terceira Forma Normal (3FN), composto por sete entidades integradas (tipos_usuario, usuarios, turmas, responsaveis, alunos, mensagens e auditoria_lgpd) implementadas em SQLite via SQL DDL e DML reais no servidor Node.js/Express. O sistema garante integridade referencial estrita (PRAGMA foreign_keys = ON), restrições CHECK e UNIQUE, operações completas de manipulação (INSERT, SELECT com JOIN/GROUP BY, UPDATE e DELETE) e trilha de auditoria em conformidade com a LGPD (Lei nº 13.709/2018). Paralelamente, todo o ciclo de desenvolvimento foi gerenciado com Git e estruturado para publicação no GitHub, utilizando ramificações temáticas (feature/*), merges controlados e commits semânticos (Conventional Commits).
+
+Palavras-chave: Banco de Dados Relacional. SQL. Normalização. Controle de Versão. Git e GitHub. UFMS Digital.
+
+1. Introdução:
+A persistência confiável de informações e a rastreabilidade da evolução do código-fonte constituem pilares indispensáveis para sistemas de informação educacionais. No contexto da EMEIEF Professor José Antônio de Miranda, a substituição dos bilhetes impressos em papel pelo Sistema Escola Conectada (SEC) exige não apenas uma interface web responsiva, mas uma camada de dados íntegra capaz de armazenar vínculos entre alunos, responsáveis legais, turmas, professores regentes e comunicados institucionais com segurança jurídica. Sem um modelo de banco de dados formalmente normalizado e sem controle de versão disciplinado, evoluções no software poderiam gerar inconsistências cadastrais, falhas no envio de alertas de emergência ou perda do histórico de alterações.
+Para atender a esses requisitos no Módulo 3, optou-se pelo SGBD relacional SQLite integrado nativamente via módulo node:sqlite em servidor Node.js/Express, aliado ao sistema de controle de versão distribuído Git com repositório organizado para o GitHub. A escolha justifica-se pela aderência rigorosa ao padrão SQL (DDL e DML), suporte nativo a chaves estrangeiras e transações ACID, facilidade de portabilidade acadêmica sem dependência de infraestrutura onerosa externa e rastreabilidade integral de commits e branches.
+
+2. Objetivo Geral
+Desenvolver e integrar um banco de dados relacional normalizado em SQL ao Sistema Escola Conectada (SEC), aplicando boas práticas de modelagem de dados, integridade referencial, manipulação CRUD e gerenciamento sistemático do código-fonte por meio do sistema de controle de versão Git e repositório no GitHub.
+
+3. Objetivos Específicos
+- Projetar um modelo de dados relacional eficiente (Diagrama Entidade-Relacionamento — DER) para o SEC, definindo entidades, atributos, cardinalidades e restrições de integridade até a Terceira Forma Normal (3FN);
+- Implementar o esquema físico do banco de dados utilizando scripts SQL DDL (CREATE TABLE, PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK e índices) e carga inicial anonimizada (seed DML);
+- Executar e disponibilizar na aplicação web operações completas de manipulação de dados (INSERT, UPDATE, DELETE e SELECT com INNER JOIN, WHERE e GROUP BY), além de trilha de auditoria LGPD;
+- Gerenciar toda a evolução do projeto utilizando o controle de versão Git com boas práticas (.gitignore, branches por funcionalidade, merges e Conventional Commits) e publicar o código em repositório no GitHub.
+
+4. Justificativa e Delimitação do Problema
+A relevância do módulo de persistência e versionamento reside na confiabilidade operacional da comunicação entre a escola e as famílias. Erros de redundância cadastral (como telefones divergentes de um mesmo responsável para dois irmãos) ou exclusões acidentais comprometeriam a eficácia do disparo unidirecional. A normalização em 3FN elimina anomalias de inserção, atualização e remoção, enquanto as chaves estrangeiras e restrições CHECK garantem que nenhum comunicado seja enviado sem vínculo válido ou sem consentimento LGPD ativo.
+Quanto às ferramentas, o SQLite com node:sqlite oferece execução embarcada de baixíssima latência, compatibilidade integral com SQL padrão e integridade transacional ACID, sendo escalável futuramente para PostgreSQL com mínima adaptação dos scripts SQL. Já o Git e o GitHub asseguram histórico auditável de cada entrega, isolamento seguro de novas funcionalidades em branches e colaboração contínua. O escopo delimita-se à persistência local transacional das sete tabelas centrais do SEC e ao versionamento completo do projeto web full-stack.
+
+5. Fundamentação Teórica
+Segundo Elmasri e Navathe (2018), a modelagem conceitual e lógica de bancos de dados relacionais permite representar com precisão as regras de negócio do domínio antes da codificação física, prevenindo redundâncias por meio do processo de normalização (1FN, 2FN e 3FN). Silberschatz, Korth e Sudarshan (2020) ressaltam que a definição explícita de chaves primárias, chaves estrangeiras e restrições de integridade referencial assegura a consistência lógica entre entidades dependentes mesmo diante de operações concorrentes.
+Date (2004) destaca que a linguagem SQL padroniza tanto a definição estrutural dos dados (DDL — Data Definition Language) quanto sua consulta e modificação (DML — Data Manipulation Language), viabilizando cruzamentos relacionais complexos via junções (JOIN) e agregações (GROUP BY). Complementarmente, Pressman e Maxim (2021) enfatizam que a gestão de configuração de software é vital para controlar mudanças em sistemas evolutivos. Conforme Chacon e Straub (2014), o Git implementa um modelo distribuído baseado em snapshots imutáveis, no qual o uso de ramificações (branches) e mensagens descritivas de commit sustenta a qualidade e a recuperabilidade do código-fonte. Por fim, a persistência de registros de menores observa os princípios de rastreabilidade e consentimento da LGPD (BRASIL, 2018).
+
+6. Metodologia
+6.1 Modelagem do Banco de Dados
+O banco de dados do SEC foi modelado seguindo rigorosamente as três primeiras formas normais:
+- 1ª Forma Normal (1FN): todos os atributos foram definidos de forma atômica (ex.: separação de nome, grau_parentesco, telefone e email em responsaveis; turno e sala em turmas).
+- 2ª Forma Normal (2FN): todas as tabelas possuem chave primária simples (id), eliminando dependências parciais.
+- 3ª Forma Normal (3FN): extração de tipos_usuario (regras RBAC) e responsaveis (tutores legais) para tabelas independentes, eliminando dependências transitivas em usuarios e alunos.
+Entidades e Cardinalidades:
+- tipos_usuario (1) ──< (N) usuarios
+- usuarios (1) ──< (N) turmas [professor_regente_id]
+- turmas (1) ──< (N) alunos
+- responsaveis (1) ──< (N) alunos
+- usuarios (1) ──< (N) mensagens [autor_id]
+- alunos (0..1) ──< (N) mensagens [aluno_id, ON DELETE SET NULL]
+- turmas (0..1) ──< (N) mensagens [turma_id, ON DELETE SET NULL]
+- auditoria_lgpd (tabela independente de rastreabilidade de operações).
+
+6.2 Implementação e Manipulação de Dados
+O esquema físico foi implementado no arquivo sql/01_schema.sql com comandos CREATE TABLE, índices de desempenho (CREATE INDEX) e restrições CHECK, UNIQUE e FOREIGN KEY (ON UPDATE CASCADE, ON DELETE RESTRICT/SET NULL). A carga inicial foi estruturada em sql/02_seed.sql com registros anonimizados e conformes à LGPD, e os exemplos de manipulação em sql/03_operations_dml.sql. No backend (server.ts e src/db/database.ts), habilitou-se PRAGMA foreign_keys = ON e implementou-se a API RESTful (/api/bootstrap, /api/students, /api/messages, /api/sql/execute, /api/sql/reset) conectada à interface web e ao Console SQL interativo.
+
+6.3 Uso do Controle de Versão
+O repositório Git foi inicializado na branch principal main com arquivo .gitignore configurado para ignorar node_modules/, dist/, variáveis de ambiente (.env*) e arquivos binários locais do banco (*.db). A evolução do Módulo 3 foi organizada em branches temáticas isoladas:
+- feature/modelagem-bd: criação do modelo relacional 3FN e dos scripts sql/01_schema.sql, sql/02_seed.sql e sql/03_operations_dml.sql;
+- feature/backend-sqlite: implementação da camada de persistência node:sqlite, validadores SQL e endpoints Express;
+- feature/interface-modulo3: desenvolvimento do Estúdio DER & Console SQL, CRUD completo na interface e inspetor Git em tempo real.
+Todas as ramificações foram integradas à branch main via merge --no-ff, mantendo mensagens semânticas no padrão Conventional Commits (feat, fix, test, docs).
+Link do repositório: ${githubUrl}
+
+7. Resultados Preliminares: Solução Inicial
+A implementação resultou em uma plataforma full-stack funcional com banco de dados SQLite persistente e gerenciamento completo via interface web:
+- Estúdio DER & Dicionário de Dados: visualização interativa das ${totalTables} tabelas, colunas, chaves PK/FK e contagem de registros em tempo real;
+- Console SQL Interativo: execução direta de consultas SELECT com INNER JOIN/GROUP BY/WHERE e operações INSERT, UPDATE e DELETE com validação de integridade referencial (bloqueio de FK inválida);
+- CRUD Completo em Alunos & Responsáveis: cadastro, edição (UPDATE), alternância de consentimento LGPD e exclusão (DELETE) persistidos em disco e registrados em auditoria_lgpd;
+- Painel Controle de Versão: leitura ao vivo do histórico de commits (${totalCommits} commits registrados) e branches do repositório local via API.
+
+8. Conclusão
+A execução do Módulo 3 consolidou a transição do protótipo visual para um sistema de informação com persistência relacional robusta e ciclo de vida versionado. Entre os principais aprendizados destacam-se a aplicação prática da normalização até a 3FN para evitar duplicidade de responsáveis, o rigor das restrições de chave estrangeira e CHECK na camada SQL e a disciplina do fluxo de branches e commits semânticos no Git. Como melhorias futuras, projeta-se a migração transparente dos scripts SQL para um servidor PostgreSQL em nuvem (mantendo a mesma modelagem relacional), a implementação de autenticação JWT com hash Argon2 para os perfis RBAC e a automação de pipelines CI/CD no GitHub Actions para execução contínua dos testes unitários e validação do esquema SQL.
+
+9. Referências
+- BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de Dados Pessoais (LGPD). Brasília, DF: Presidência da República, 2018. Disponível em: https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm. Acesso em: 12 nov. 2026.
+- CHACON, Scott; STRAUB, Ben. Pro Git. 2. ed. New York: Apress, 2014. Disponível em: https://git-scm.com/book/en/v2. Acesso em: 12 nov. 2026.
+- DATE, Christopher J. Introdução a sistemas de bancos de dados. 8. ed. Rio de Janeiro: Elsevier, 2004.
+- ELMASRI, Ramez; NAVATHE, Shamkant B. Sistemas de banco de dados. 7. ed. São Paulo: Pearson Addison Wesley, 2018.
+- PRESSMAN, Roger S.; MAXIM, Bruce R. Engenharia de software: uma abordagem profissional. 9. ed. Porto Alegre: AMGH, 2021.
+- SILBERSCHATZ, Abraham; KORTH, Henry F.; SUDARSHAN, S. Sistema de banco de dados. 7. ed. Rio de Janeiro: LTC, 2020.
+- UNIVERSIDADE FEDERAL DE MATO GROSSO DO SUL. Resolução nº 142, de 21 de dezembro de 2021: Estabelece as normas de Extensão Universitária no âmbito da UFMS. Campo Grande: UFMS, 2021.
+
+10. Link do Repositório
+${githubUrl}
+  `.trim();
+
+  const module2ReportText = `
 TEMPLATE DO ESTUDANTE
 Desenvolvimento Web com frameworks e HTML/CSS
 AVALIAÇÃO DO MÓDULO 2 - Desenvolvimento Web com frameworks e HTML/CSS
@@ -34,74 +143,15 @@ Título da ação: SISTEMA ESCOLA CONECTADA (SEC): PLATAFORMA DE GESTÃO DE COMU
 Repositório GitHub: ${githubUrl}
 
 RESUMO:
-O presente relatório documenta o desenvolvimento da aplicação web dinâmica e responsiva do Sistema Escola Conectada (SEC), concebida no âmbito do Programa de Extensão UFMS Digital para solucionar os entraves históricos da comunicação analógica na EMEIEF Professor José Antônio de Miranda. A partir dos artefatos de engenharia concebidos nas etapas anteriores (Casos de Uso, Diagrama de Classes, DER e Plano de Testes), desenvolveu-se uma solução estruturada no ecossistema moderno React 19, TypeScript e Vite, com estilização responsiva via Tailwind CSS e semântica estrita em HTML5 acessível. O SEC implementa controle de acesso baseado em papéis (RBAC) para cinco atores escolares, trava hierárquica que retém mensagens docentes em fila de aprovação pela coordenação/direção, injeção automatizada de cabeçalho padronizado para superação da concorrência de atenção com mensagens pessoais e integração simulada com os bancos legados (School+ e TecSystem). Como resultado prático, a plataforma extingue o desperdício mensal de 2.000 folhas A4 e despesas com toner, encurta o prazo de transmissão de avisos de 2 dias para 1,8 segundos e assegura estrita conformidade com a LGPD (Lei nº 13.709/2018).
+O presente relatório documenta o desenvolvimento da aplicação web dinâmica e responsiva do Sistema Escola Conectada (SEC), concebida no âmbito do Programa de Extensão UFMS Digital para solucionar os entraves históricos da comunicação analógica na EMEIEF Professor José Antônio de Miranda. Desenvolveu-se uma solução estruturada no ecossistema React 19, TypeScript e Vite, com estilização responsiva via Tailwind CSS e semântica estrita em HTML5 acessível, implementando RBAC para cinco atores escolares, fila hierárquica e injeção automatizada de cabeçalho padronizado.
 
-PALAVRAS-CHAVE:
-Desenvolvimento Web. Frameworks Front-end. HTML5/CSS3. Mensageria Escolar. UFMS Digital. Engenharia de Software.
-
-1. INTRODUÇÃO
-A comunicação entre escolas públicas e as famílias desempenha papel estruturante no sucesso pedagógico e na redução da evasão escolar. Não obstante, o diagnóstico empírico realizado in loco na EMEIEF Professor José Antônio de Miranda revelou a permanência de processos arcaicos: a transmissão de circulares dependia da redação física, impressão em massa, recorte manual com guilhotina e colagem nas agendas dos educandos. Esse fluxo consumia cerca de 2.000 folhas A4 e um toner de alta capacidade a cada mês, além de demandar cerca de 48 horas para que um comunicado atingisse todas as salas, frequentemente culminando no extravio dos papéis.
-
-Para superar essa lacuna social e operacional, o projeto concebeu o Sistema Escola Conectada (SEC). No âmbito do desenvolvimento web moderno, a transição de protótipos estáticos para uma aplicação web dinâmica exigiu a seleção de tecnologias robustas. A escolha do framework React (Single Page Application - SPA) com Vite e TypeScript fundamenta-se na necessidade de gerenciar estados complexos e reativos de forma declarativa e modular (como a fila de validação hierárquica e a alternância de perfis RBAC em tempo de execução). A tipagem estática do TypeScript mitiga erros em tempo de compilação na manipulação de metadados sensíveis de menores, enquanto o Tailwind CSS e a semântica do HTML5 garantem acessibilidade nativa e design responsivo (Mobile First), adaptando-se tanto às estações desktop da secretaria escolar quanto aos smartphones dos professores e famílias.
-
-2. OBJETIVO GERAL
-Desenvolver e implementar uma aplicação web dinâmica e responsiva para o Sistema Escola Conectada (SEC), utilizando framework front-end moderno, estruturação semântica em HTML5 e estilização responsiva em CSS, integrando os fluxos hierárquicos de aprovação e injeção automática de cabeçalho para otimizar a comunicação institucional com as famílias.
-
-3. OBJETIVOS ESPECÍFICOS
-- Definir a arquitetura modular da aplicação web, segregando componentes visuais, gerenciamento de estado e regras de negócio de domínio (RBAC, LGPD e validação hierárquica);
-- Implementar layout responsivo e acessível com HTML5 semântico e Tailwind CSS, assegurando usabilidade em monitores desktop de secretaria e dispositivos móveis (Mobile First);
-- Configurar e integrar o framework React com TypeScript e Vite para garantir alta performance, renderização eficiente e reatividade em tempo real;
-- Implementar a injeção automatizada de metadados no cabeçalho dos comunicados (Nome do Aluno, Turma, Turno e Professor Regente) para combater a dispersão e concorrência de atenção nos celulares dos responsáveis;
-- Codificar e testar a suíte de regras de negócio com testes unitários automatizados (node:test) e disponibilizar a documentação e código-fonte em repositório público no GitHub.
-
-4. JUSTIFICATIVA E DELIMITAÇÃO DO PROBLEMA
-A relevância da solução justifica-se em três eixos:
-a) Eficiência e Redução de Gastos Públicos: Eliminação do desperdício de 2.000 folhas A4 mensais e recargas de toner, gerando economia recorrente aos cofres públicos da ordem de R$ 360,00/mês;
-b) Velocidade Operacional: Redução drástica do tempo de tramitação dos comunicados de 2 dias úteis para aproximadamente 1,8 segundos, assegurando pronta resposta em situações emergenciais;
-c) Segurança Jurídica e Inclusão Digital: Canal unidirecional oficial em estrito alinhamento com a LGPD (Lei nº 13.709/2018), utilizando os telefones cadastrados no ato da matrícula e prevenindo o tratamento indevido de dados de menores.
-
-5. FUNDAMENTAÇÃO TEÓRICA
-O desenvolvimento da aplicação ancora-se no referencial clássico e contemporâneo da Engenharia de Software e das Tecnologias da Informação:
-- Engenharia de Software e Qualidade: Conforme Pressman e Maxim (2021) e Sommerville (2019), o emprego de frameworks consolidados e a modelagem formal de requisitos previnem a perda de integridade dos dados durante a transição analógica para a computacional;
-- Modelagem Visual: Guedes (2018) preconiza a UML como linguagem de precisão para delimitar atores, casos de uso e diagramas de classe, implementados com fidelidade no SEC;
-- Automação de Processos: Santana et al. (2026) demonstram que automações no tratamento de dados escolares reduzem intervenções manuais a zero e elevam a confiabilidade da gestão;
-- Comunicação Mediada por TICs: Lucena (2016) e Santos et al. (2020) atestam que aplicativos de mensageria instantânea (como WhatsApp) possuem taxas de abertura muito superiores às mídias analógicas, consolidando canais diretos de cidadania e proximidade comunitária;
-- Legislação e Governança: Brasil (Lei 13.709/2018 - LGPD), que exige salvaguardas claras para dados de crianças e adolescentes.
-
-6. METODOLOGIA
-6.1 Planejamento e Definição do Projeto:
-O escopo partiu do diagnóstico presencial e da aplicação do questionário com 20 perguntas na EMEIEF Prof. José Antônio de Miranda. Selecionou-se a stack: React 19 SPA, TypeScript, Vite, Tailwind CSS e Lucide Icons, garantindo ecossistema moderno e componentização limpa.
-6.2 Implementação:
-- Estruturação modular em componentes funcionais (Header, Navigation, DashboardView, ComposeMessageModal, MessageQueueView, StudentsView, ParentSimulatorView);
-- Desacoplamento da lógica pura de domínio em módulo isolado (sec-rules.ts) coberto por testes unitários determinísticos (sec-rules.test.ts);
-- Estilização responsiva mobile-first com Flexbox e CSS Grid nativos do Tailwind CSS;
-- Simulação dinâmica da recepção dos pais via WhatsApp Cloud API e SMS Gateway.
-6.3 Publicação e Documentação:
-Estruturação de repositório Git com histórico semântico de commits, documentação no README.md e instruções claras de execução local e build.
-
-7. RESULTADOS PRELIMINARES: SOLUÇÃO INICIAL
-A aplicação web desenvolvida contempla integralmente todos os requisitos funcionais e não-funcionais:
-- Controle de Acesso (RBAC) operacional com 5 perfis distintos;
-- Retenção mandatória de comunicados docentes na Fila de Validação, bloqueando auto-aprovação pelo professor;
-- Injeção dinâmica do cabeçalho oficial que identifica a escola, aluno, turma e regente;
-- Bloqueio de envio em casos de ausência do termo de consentimento LGPD;
-- Simulação no celular do responsável evidenciando o canal estritamente unidirecional.
-
-8. CONCLUSÃO
-A transposição dos modelos de engenharia para uma aplicação web dinâmica e responsiva no Módulo 2 comprova a viabilidade técnica e social do SEC. O software substitui custos operacionais crônicos por agilidade digital, assegurando a formação cidadã do educando e fortalecendo o vínculo entre a universidade pública e a comunidade escolar.
-
-9. REFERÊNCIAS
-- BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de Dados Pessoais (LGPD). Brasília, DF, 2018.
-- GUEDES, Gilleanes T. A. UML 2: guia prático. 3. ed. São Paulo: Érica, 2018.
-- LUCENA, Simone. Culturas digitais e tecnologias móveis na educação. Cadernos de Pesquisa, v. 46, n. 161, p. 800-824, 2016.
-- PRESSMAN, Roger S.; MAXIM, Bruce R. Engenharia de software: uma abordagem profissional. 9. ed. Porto Alegre: AMGH, 2021.
-- SANTANA, Miguel das Virgens de et al. Insight forms: automated analysis of educational feedback using python and generative AI. Observatorio de la Economía Latinoamericana, v. 24, n. 2, p. 1-19, 2026.
-- SANTOS, J. B. et al. O uso do WhatsApp como ferramenta de comunicação entre escola e família. Revista de Educação e Tecnologias, v. 5, n. 1, 2020.
-- SOMMERVILLE, Ian. Engenharia de software. 10. ed. São Paulo: Pearson Education do Brasil, 2019.
+PALAVRAS-CHAVE: Desenvolvimento Web. Frameworks Front-end. HTML5/CSS3. Mensageria Escolar. UFMS Digital.
   `.trim();
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(fullReportText);
+    navigator.clipboard.writeText(
+      selectedModule === 'm3' ? module3ReportText : module2ReportText
+    );
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
@@ -112,31 +162,62 @@ A transposição dos modelos de engenharia para uma aplicação web dinâmica e 
 
   return (
     <div className="space-y-6">
-      {/* Top Banner with Action Toolbar */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      {/* Top Banner with Action Toolbar (Hidden when printing PDF) */}
+      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 print:hidden">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-              Relatório da Atividade Extensionista (Módulo 2)
+              Relatório Oficial da Atividade Extensionista
             </h2>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
-              Template Oficial 02-02 - HTML
+              {selectedModule === 'm3'
+                ? 'Template Oficial Módulo 3 (BD & Git)'
+                : 'Template Módulo 2 (Web & HTML/CSS)'}
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Documentação acadêmica institucional em estrita conformidade com as normas ABNT NBR 6023:2018
+            Preenchido conforme o Template do Estudante UFMS Digital e normas ABNT NBR 6023:2018. Use &quot;Imprimir / Salvar PDF&quot; para gerar o PDF de entrega.
           </p>
         </div>
 
-        {/* Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        {/* Controls & Buttons */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs mr-1">
+            <button
+              type="button"
+              onClick={() => setSelectedModule('m3')}
+              className={`px-3 py-1.5 rounded-lg font-bold cursor-pointer transition-all ${
+                selectedModule === 'm3'
+                  ? 'bg-white text-blue-800 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Módulo 3 (Atual)
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedModule('m2')}
+              className={`px-3 py-1.5 rounded-lg font-bold cursor-pointer transition-all ${
+                selectedModule === 'm2'
+                  ? 'bg-white text-blue-800 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Módulo 2
+            </button>
+          </div>
+
           <button
             onClick={handleCopy}
             type="button"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 shadow-2xs transition-all active:scale-95 cursor-pointer"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>{copied ? 'Copiado para Área de Transferência!' : 'Copiar Relatório Completo'}</span>
+            {copied ? (
+              <Check className="w-3.5 h-3.5 text-emerald-600" />
+            ) : (
+              <Copy className="w-3.5 h-3.5" />
+            )}
+            <span>{copied ? 'Copiado!' : 'Copiar Texto'}</span>
           </button>
 
           <button
@@ -155,180 +236,399 @@ A transposição dos modelos de engenharia para uma aplicação web dinâmica e 
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-all cursor-pointer"
           >
             <Github className="w-3.5 h-3.5" />
-            <span>Repositório GitHub</span>
+            <span>GitHub</span>
             <ExternalLink className="w-3 h-3 text-slate-400" />
           </a>
         </div>
       </div>
 
-      {/* Academic Paper Card (Formatted per Template 02-02 - HTML) */}
-      <article className="bg-white rounded-2xl border border-slate-300 shadow-md p-6 sm:p-10 max-w-5xl mx-auto space-y-8 font-serif text-slate-800 leading-relaxed print:shadow-none print:border-none print:p-0">
-        
-        {/* Institutional Header */}
-        <header className="text-center border-b border-slate-200 pb-6 space-y-2 font-sans">
-          <div className="inline-block px-3 py-1 rounded bg-blue-50 text-blue-900 font-bold text-xs tracking-wider uppercase mb-1">
-            Universidade Federal de Mato Grosso do Sul — EaD / AGEAD
-          </div>
-          <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 uppercase tracking-tight">
-            Template do Estudante — Desenvolvimento Web com Frameworks e HTML/CSS
-          </h1>
-          <p className="text-sm font-semibold text-slate-600">
-            Avaliação do Módulo 2 — Projeto Integrador de Tecnologia da Informação (UFMS Digital)
-          </p>
-        </header>
-
-        {/* Student and Action Identification */}
-        <section className="bg-slate-50 p-4 sm:p-6 rounded-xl border border-slate-200 font-sans text-xs space-y-2">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <span className="text-slate-500 font-medium">Projeto de Extensão:</span>
-              <p className="font-bold text-slate-900">Programa de Extensão UFMS Digital (95DX7.200525)</p>
+      {/* MODULE 3 REPORT */}
+      {selectedModule === 'm3' ? (
+        <article className="bg-white rounded-2xl border border-slate-300 shadow-md p-6 sm:p-10 max-w-5xl mx-auto space-y-7 font-serif text-slate-800 leading-relaxed print:shadow-none print:border-none print:p-0 print:max-w-none">
+          {/* Institutional Header */}
+          <header className="text-center border-b border-slate-200 pb-6 space-y-2 font-sans">
+            <div className="inline-block px-3 py-1 rounded bg-blue-50 text-blue-900 font-bold text-xs tracking-wider uppercase mb-1">
+              Universidade Federal de Mato Grosso do Sul — EaD / AGEAD • UFMS Digital
             </div>
-            <div>
-              <span className="text-slate-500 font-medium">Nome Completo:</span>
-              <p className="font-bold text-slate-900">Jefferson Soares Alves Salles</p>
-            </div>
-            <div>
-              <span className="text-slate-500 font-medium">Disciplina / Curso:</span>
-              <p className="font-bold text-slate-900">Projeto Integrador II / Tecnologia da Informação</p>
-            </div>
-            <div>
-              <span className="text-slate-500 font-medium">Semestre Letivo:</span>
-              <p className="font-bold text-slate-900">2026.2</p>
-            </div>
-            <div>
-              <span className="text-slate-500 font-medium">Local de Realização:</span>
-              <p className="font-bold text-slate-900">EMEIEF Professor José Antônio de Miranda</p>
-            </div>
-            <div>
-              <span className="text-slate-500 font-medium">Repositório Oficial no GitHub:</span>
-              <p className="font-bold text-blue-700 underline font-mono text-[11px]">{githubUrl}</p>
-            </div>
-          </div>
-
-          <div className="pt-2 border-t border-slate-200">
-            <span className="text-slate-500 font-medium uppercase tracking-wider text-[10px]">Título da Ação de Extensão:</span>
-            <p className="font-black text-sm text-slate-900 uppercase">
-              SISTEMA ESCOLA CONECTADA (SEC): PLATAFORMA DE GESTÃO DE COMUNICAÇÃO DIRETA ENTRE INSTITUIÇÃO DE ENSINO E RESPONSÁVEIS
+            <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 uppercase tracking-tight">
+              Template do Estudante — Banco de Dados e Controle de Versão
+            </h1>
+            <p className="text-sm font-semibold text-slate-600">
+              AVALIAÇÃO DO MÓDULO 3 — Banco de Dados e Controle de versão
             </p>
-          </div>
-        </section>
+          </header>
 
-        {/* Resumo e Palavras-chave */}
-        <section className="space-y-3">
-          <h2 className="text-base font-bold font-sans text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
-            Resumo
-          </h2>
-          <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8">
-            O presente relatório documenta o desenvolvimento da aplicação web dinâmica e responsiva do Sistema Escola Conectada (SEC), concebida no âmbito do Programa de Extensão UFMS Digital para solucionar os entraves históricos da comunicação analógica na EMEIEF Professor José Antônio de Miranda. A partir dos artefatos de engenharia concebidos nas etapas anteriores (Casos de Uso, Diagrama de Classes, DER e Plano de Testes), desenvolveu-se uma solução estruturada no ecossistema moderno React 19, TypeScript e Vite, com estilização responsiva via Tailwind CSS e semântica estrita em HTML5 acessível. O SEC implementa controle de acesso baseado em papéis (RBAC) para cinco atores escolares, trava hierárquica que retém mensagens docentes em fila de aprovação pela coordenação/direção, injeção automatizada de cabeçalho padronizado para superação da concorrência de atenção com mensagens pessoais e integração simulada com os bancos legados (School+ e TecSystem). Como resultado prático, a plataforma extingue o desperdício mensal de 2.000 folhas A4 e despesas com toner, encurta o prazo de transmissão de avisos de 2 dias para 1,8 segundos e assegura estrita conformidade com a LGPD (Lei nº 13.709/2018).
-          </p>
-          <p className="text-xs font-sans text-slate-600 pt-1">
-            <strong>Palavras-chave:</strong> Desenvolvimento Web. Frameworks Front-end. HTML5/CSS3. Mensageria Escolar. UFMS Digital. Engenharia de Software.
-          </p>
-        </section>
+          {/* Identification Metadata Block */}
+          <section className="bg-slate-50 p-4 sm:p-6 rounded-xl border border-slate-200 font-sans text-xs space-y-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <span className="text-slate-500 font-medium">Projeto de Extensão:</span>
+                <p className="font-bold text-slate-900">
+                  Programa de Extensão UFMS Digital (95DX7.200525)
+                </p>
+              </div>
+              <div>
+                <span className="text-slate-500 font-medium">Nome completo:</span>
+                <p className="font-bold text-slate-900">Jefferson Soares Alves Salles</p>
+              </div>
+              <div>
+                <span className="text-slate-500 font-medium">Disciplina:</span>
+                <p className="font-bold text-slate-900">
+                  Projeto Integrador de Tecnologia da Informação
+                </p>
+              </div>
+              <div>
+                <span className="text-slate-500 font-medium">Semestre letivo:</span>
+                <p className="font-bold text-slate-900">2026.2</p>
+              </div>
+              <div>
+                <span className="text-slate-500 font-medium">Curso:</span>
+                <p className="font-bold text-slate-900">Tecnologia da Informação</p>
+              </div>
+              <div>
+                <span className="text-slate-500 font-medium">Local de realização:</span>
+                <p className="font-bold text-slate-900">
+                  EMEIEF Professor José Antônio de Miranda
+                </p>
+              </div>
+              <div className="sm:col-span-2">
+                <span className="text-slate-500 font-medium">Público-alvo:</span>
+                <p className="font-bold text-slate-900">
+                  Gestores escolares, secretários, professores regentes, equipe pedagógica e pais/responsáveis legais dos estudantes.
+                </p>
+              </div>
+            </div>
 
-        {/* 1. Introdução */}
-        <section className="space-y-3 font-sans">
-          <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
-            1. Introdução
-          </h2>
-          <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
-            A comunicação entre escolas públicas e as famílias desempenha papel estruturante no sucesso pedagógico e na redução da evasão escolar. Não obstante, o diagnóstico empírico realizado in loco na EMEIEF Professor José Antônio de Miranda revelou a permanência de processos arcaicos: a transmissão de circulares dependia da redação física, impressão em massa, recorte manual com guilhotina e colagem nas agendas dos educandos. Esse fluxo burocrático consumia cerca de 2.000 folhas A4 e um toner de alta capacidade a cada mês, além de demandar aproximadamente 48 horas operacionais para que um comunicado atingisse todas as salas de aula, frequentemente culminando no extravio dos papéis ou na ausência de verificação por parte dos pais.
-          </p>
-          <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
-            Para solucionar esse gargalo social e administrativo, o projeto integrador especificou o <strong>Sistema Escola Conectada (SEC)</strong>. No contexto do Módulo 2 (Desenvolvimento Web com frameworks e HTML/CSS), a transição da modelagem teórica para uma aplicação web dinâmica e funcional exigiu a seleção criteriosa de tecnologias de ponta. Justifica-se a escolha do <strong>React 19</strong> (SPA componentizado) gerenciado pelo empacotador de alta performance <strong>Vite</strong> e integrado ao <strong>TypeScript</strong>: essa combinação assegura manutenibilidade, reatividade em tempo de execução para fluxos como a fila hierárquica e prevenção rigorosa de inconsistências de dados ao tratar metadados de menores sob tutela legal. A estilização via <strong>Tailwind CSS</strong> associada a elementos nativos do <strong>HTML5</strong> assegura responsividade fluida (Mobile First) e acessibilidade semântica para múltiplos dispositivos.
-          </p>
-        </section>
+            <div className="pt-2.5 border-t border-slate-200">
+              <span className="text-slate-500 font-medium uppercase tracking-wider text-[10px]">
+                Título da ação:
+              </span>
+              <p className="font-black text-sm text-slate-900 uppercase">
+                SISTEMA ESCOLA CONECTADA (SEC): MODELAGEM RELACIONAL DE BANCO DE DADOS E VERSIONAMENTO PARA COMUNICAÇÃO ESCOLAR UNIDIRECIONAL
+              </p>
+            </div>
+          </section>
 
-        {/* 2. Objetivos */}
-        <section className="space-y-3 font-sans">
-          <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
-            2. Objetivos
-          </h2>
-          <div className="space-y-2 text-sm text-slate-700 font-serif">
-            <h3 className="font-bold font-sans text-slate-900 text-sm">2.1 Objetivo Geral</h3>
-            <p className="text-justify indent-8">
-              Desenvolver e implementar uma aplicação web dinâmica, responsiva e acessível para o Sistema Escola Conectada (SEC), aplicando os artefatos de engenharia concebidos nas etapas preliminares, estruturada em framework front-end moderno (React/TypeScript), com estilização responsiva via CSS3 (Tailwind CSS) e semântica estrita em HTML5.
+          {/* Resumo & Palavras-chave */}
+          <section className="space-y-3">
+            <h2 className="text-base font-bold font-sans text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
+              Resumo
+            </h2>
+            <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8">
+              O presente relatório apresenta a evolução arquitetural do Sistema Escola Conectada (SEC), desenvolvido no Programa de Extensão UFMS Digital para atender à EMEIEF Professor José Antônio de Miranda, integrando modelagem de banco de dados relacional e controle de versão profissional. A solução substitui o armazenamento volátil e os fluxos analógicos em papel por um banco de dados relacional normalizado até a Terceira Forma Normal (3FN), estruturado em sete tabelas inter-relacionadas (<code className="text-xs bg-slate-100 px-1 rounded font-mono">tipos_usuario</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">usuarios</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">turmas</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">responsaveis</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">alunos</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">mensagens</code> e <code className="text-xs bg-slate-100 px-1 rounded font-mono">auditoria_lgpd</code>) em SQLite via scripts SQL DDL e DML executados por servidor Node.js/Express. O banco impõe integridade referencial (<code className="text-xs bg-slate-100 px-1 rounded font-mono">PRAGMA foreign_keys = ON</code>), restrições <code className="text-xs bg-slate-100 px-1 rounded font-mono">CHECK</code>/<code className="text-xs bg-slate-100 px-1 rounded font-mono">UNIQUE</code>, operações CRUD completas e auditoria de conformidade com a LGPD (Lei nº 13.709/2018). Adicionalmente, todo o desenvolvimento foi gerenciado com Git e organizado para publicação no GitHub mediante ramificações temáticas (<code className="text-xs bg-slate-100 px-1 rounded font-mono">feature/*</code>), merges controlados e commits semânticos.
             </p>
+            <p className="text-xs font-sans text-slate-600 pt-1">
+              <strong>Palavras-chave:</strong> Banco de Dados Relacional. SQL. Normalização. Controle de Versão. Git e GitHub. UFMS Digital.
+            </p>
+          </section>
 
-            <h3 className="font-bold font-sans text-slate-900 text-sm pt-2">2.2 Objetivos Específicos</h3>
-            <ul className="list-disc pl-8 space-y-1 text-justify">
-              <li>Definir a arquitetura modular da aplicação e estruturar os componentes React necessários para a navegação, composição de avisos e simulação da recepção móvel;</li>
-              <li>Implementar um layout totalmente responsivo com CSS Flexbox e Grid, adaptado às telas desktop da secretaria escolar e aos smartphones dos docentes e gestores;</li>
-              <li>Configurar e integrar o framework web para gerenciar o estado global da aplicação e o controle de acesso baseado em papéis (RBAC com 5 perfis);</li>
-              <li>Programar a regra de negócio mandatória de retenção hierárquica das mensagens docentes em fila de aprovação antes do disparo;</li>
-              <li>Implementar a injeção automática de metadados no cabeçalho padronizado (aluno, turma, turno e professor regente), superando a concorrência de atenção com mensagens pessoais;</li>
-              <li>Documentar as decisões arquiteturais e disponibilizar o código em repositório público no GitHub com instruções completas.</li>
+          {/* 1. Introdução */}
+          <section className="space-y-3 font-sans">
+            <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
+              1. Introdução
+            </h2>
+            <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
+              A persistência estruturada de dados e a rastreabilidade do código-fonte são requisitos fundamentais na construção de sistemas educacionais confiáveis. Na EMEIEF Professor José Antônio de Miranda, o Sistema Escola Conectada (SEC) busca erradicar o uso mensal de 2.000 folhas A4 e o atraso médio de 48 horas no envio de comunicados escolares por meio de mensageria digital unidirecional. Contudo, para que a aplicação web opere de modo seguro em produção, torna-se imprescindível sustentar suas regras de negócio — como o controle de acesso por papéis (RBAC), a retenção hierárquica de mensagens docentes e o bloqueio de envios sem termo LGPD — sobre um banco de dados relacional consistente e auditável.
+            </p>
+            <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
+              Sem modelagem formal e controle de versão, alterações evolutivas poderiam gerar duplicidade de responsáveis legais, perda de histórico de comunicados aprovados ou regressões no código. Assim, para o Módulo 3, adotou-se o motor relacional <strong>SQLite</strong> integrado nativamente via <code className="text-xs bg-slate-100 px-1 rounded font-mono">node:sqlite</code> ao servidor <strong>Express/TypeScript</strong>, associado ao <strong>Git</strong> e ao <strong>GitHub</strong>. Essa escolha tecnológica assegura aderência estrita ao padrão SQL (DDL/DML), transações ACID, verificação rigorosa de chaves estrangeiras e histórico versionado transparente por funcionalidades.
+            </p>
+          </section>
+
+          {/* 2. Objetivo Geral */}
+          <section className="space-y-2 font-sans">
+            <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
+              2. Objetivo Geral
+            </h2>
+            <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
+              Desenvolver e integrar um banco de dados relacional normalizado em SQL ao Sistema Escola Conectada (SEC), aplicando modelagem entidade-relacionamento, restrições de integridade e operações completas de manipulação de dados, em conjunto com o gerenciamento estruturado do código-fonte utilizando o controle de versão Git e publicação em repositório no GitHub.
+            </p>
+          </section>
+
+          {/* 3. Objetivos Específicos */}
+          <section className="space-y-2 font-sans">
+            <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
+              3. Objetivos Específicos
+            </h2>
+            <ul className="list-disc pl-8 space-y-1.5 text-sm text-slate-700 text-justify font-serif">
+              <li>Projetar um modelo de dados relacional eficiente (DER) para o SEC, especificando entidades, atributos, cardinalidades e chaves até a Terceira Forma Normal (3FN);</li>
+              <li>Implementar o esquema físico do banco de dados utilizando SQL DDL (<code className="text-xs bg-slate-100 px-1 rounded font-mono">CREATE TABLE</code>, chaves primárias, estrangeiras, restrições <code className="text-xs bg-slate-100 px-1 rounded font-mono">UNIQUE</code>/<code className="text-xs bg-slate-100 px-1 rounded font-mono">CHECK</code> e índices) e realizar a carga inicial anonimizada (seed DML);</li>
+              <li>Executar operações de manipulação e consulta de dados (<code className="text-xs bg-slate-100 px-1 rounded font-mono">INSERT</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">UPDATE</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">DELETE</code> e <code className="text-xs bg-slate-100 px-1 rounded font-mono">SELECT</code> com <code className="text-xs bg-slate-100 px-1 rounded font-mono">INNER JOIN</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">WHERE</code> e <code className="text-xs bg-slate-100 px-1 rounded font-mono">GROUP BY</code>) integradas à interface web e ao Console SQL;</li>
+              <li>Gerenciar toda a evolução do código do projeto utilizando Git com boas práticas de versionamento (arquivo <code className="text-xs bg-slate-100 px-1 rounded font-mono">.gitignore</code>, ramificações <code className="text-xs bg-slate-100 px-1 rounded font-mono">feature/*</code>, merges controlados e Conventional Commits) e disponibilizá-lo no GitHub.</li>
             </ul>
-          </div>
-        </section>
+          </section>
 
-        {/* 3. Justificativa e Delimitação */}
-        <section className="space-y-3 font-sans">
-          <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
-            3. Justificativa e Delimitação do Problema
-          </h2>
-          <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
-            A relevância social da aplicação reside na modernização do serviço público escolar e no fortalecimento da relação escola-comunidade. O diagnóstico in loco demonstrou que grande parte dos responsáveis possui smartphones com planos de dados móveis, enquanto a circulação de bilhetes em papel apresentava índices elevados de extravio. Sob a perspectiva econômica e ecológica, erradicar o uso de 2.000 folhas mensais de papel A4 gera economia direta aos cofres públicos e promove a sustentabilidade. Sob a ótica técnica e jurídica, a aplicação delimita-se estritamente como um <strong>canal de transmissão unidirecional (broadcast)</strong> com injeção automática de cabeçalho, evitando discussões paralelas nos canais escolares e blindando o sistema sob os preceitos da LGPD (Lei nº 13.709/2018).
-          </p>
-        </section>
+          {/* 4. Justificativa e Delimitação do Problema */}
+          <section className="space-y-3 font-sans">
+            <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
+              4. Justificativa e Delimitação do Problema
+            </h2>
+            <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
+              A persistência de dados no domínio escolar exige exatidão referencial e proteção jurídica. Caso os dados dos responsáveis estivessem duplicados dentro da tabela de alunos, uma atualização de número de WhatsApp pela secretaria poderia atualizar apenas um irmão e deixar outro desatualizado, causando falha crítica em avisos de saúde ou reuniões. Ao separar as entidades <code className="text-xs bg-slate-100 px-1 rounded font-mono">responsaveis</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">alunos</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">turmas</code> e <code className="text-xs bg-slate-100 px-1 rounded font-mono">tipos_usuario</code>, o modelo elimina anomalias de atualização e assegura que toda alteração reflita imediatamente nos comunicados gerados.
+            </p>
+            <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
+              Em termos de eficiência e escalabilidade, a escolha do SQLite embarcado via <code className="text-xs bg-slate-100 px-1 rounded font-mono">node:sqlite</code> confere latência sub-milissegundo nas consultas locais, zero custo de licenciamento para escolas públicas municipais e portabilidade direta dos scripts SQL ANSI para motores corporativos como PostgreSQL em implantações de rede municipal. Da mesma forma, o uso do Git e do GitHub delimita um fluxo seguro contra perdas de código e permite auditoria completa de cada alteração implementada.
+            </p>
+          </section>
 
-        {/* 4. Fundamentação Teórica */}
-        <section className="space-y-3 font-sans">
-          <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
-            4. Fundamentação Teórica
-          </h2>
-          <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
-            O desenvolvimento do SEC fundamenta-se nas boas práticas consolidadas da Engenharia de Software. Pressman e Maxim (2021) e Sommerville (2019) destacam que o emprego de frameworks modernos de interface previne o acoplamento desordenado entre visão e lógica de negócios, garantindo que regras críticas (como a autorização RBAC) permaneçam desacopladas e auditáveis. Guedes (2018) preconiza a Linguagem de Modelagem Unificada (UML) como vetor essencial para formalizar entidades de dados (classes Usuario, Aluno, Turma e FormularioMensagem) antes de sua implementação em código.
-          </p>
-          <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
-            No tocante à automação e comunicação pública, estudos contemporâneos atestam a supremacia dos canais de mensageria instantânea sobre correspondências impressas. Lucena (2016) e Santos et al. (2020) comprovam que o uso de interfaces móveis e mensageria eleva substancialmente a taxa de abertura de comunicados escolares em comparação a bilhetes físicos. Por fim, a manipulação de registros de menores exige adesão indeclinável à Lei Geral de Proteção de Dados (Lei nº 13.709/2018), demandando validações sistemáticas de consentimento obtido no ato da matrícula (BRASIL, 2018).
-          </p>
-        </section>
+          {/* 5. Fundamentação Teórica */}
+          <section className="space-y-3 font-sans">
+            <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
+              5. Fundamentação Teórica
+            </h2>
+            <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
+              De acordo com Elmasri e Navathe (2018), a modelagem relacional organiza os dados em relações (tabelas) com domínios bem definidos, aplicando formas normais sucessivas (1FN, 2FN e 3FN) para eliminar redundâncias e dependências transitivas. Silberschatz, Korth e Sudarshan (2020) demonstram que a integridade referencial — concretizada por chaves primárias (PK) e estrangeiras (FK) — garante que referências entre registros permaneçam sempre válidas diante de inserções, alterações e exclusões.
+            </p>
+            <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
+              Segundo Date (2004), a linguagem SQL unifica a definição estrutural (DDL) e a manipulação algébrica dos dados (DML), permitindo consultas relacionais precisas com projeções, junções (<code className="text-xs bg-slate-100 px-1 rounded font-mono">INNER JOIN</code>) e agregações (<code className="text-xs bg-slate-100 px-1 rounded font-mono">GROUP BY</code>). No eixo de engenharia de software, Pressman e Maxim (2021) apontam o controle de configuração como elemento essencial para controlar versões e mudanças. Chacon e Straub (2014) explicam que o Git armazena o histórico como uma cadeia criptográfica de snapshots, viabilizando ramificações leves (<code className="text-xs bg-slate-100 px-1 rounded font-mono">branches</code>) e integrações (<code className="text-xs bg-slate-100 px-1 rounded font-mono">merges</code>) seguras. Adicionalmente, toda manipulação cadastral de estudantes observa a LGPD (BRASIL, 2018).
+            </p>
+          </section>
 
-        {/* 5. Metodologia */}
-        <section className="space-y-3 font-sans">
-          <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
-            5. Metodologia de Desenvolvimento
-          </h2>
-          <div className="space-y-3 text-sm text-slate-700 font-serif">
-            <div>
-              <strong className="font-sans font-bold text-slate-900">5.1 Planejamento e Definição do Escopo:</strong>
-              <p className="text-justify indent-8 mt-1">
-                Com base no questionário estruturado de 20 perguntas aplicado à gestão da escola e nos diagramas de casos de uso prévios, estabeleceu-se a arquitetura front-end em React SPA, organizada em camadas: apresentação (UI components), camada de domínio (regras puras em sec-rules.ts) e persistência/mock sincronizada aos sistemas legados School+ e TecSystem.
+          {/* 6. Metodologia */}
+          <section className="space-y-4 font-sans">
+            <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
+              6. Metodologia
+            </h2>
+
+            {/* 6.1 */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold text-slate-900">
+                6.1 Modelagem do Banco de Dados
+              </h3>
+              <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
+                A partir dos diagramas de casos de uso e de classes produzidos nas etapas anteriores, projetou-se o modelo lógico normalizado até a 3FN com sete entidades principais: <code className="text-xs bg-slate-100 px-1 rounded font-mono">tipos_usuario</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">usuarios</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">turmas</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">responsaveis</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">alunos</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">mensagens</code> e <code className="text-xs bg-slate-100 px-1 rounded font-mono">auditoria_lgpd</code>. Na 1FN, garantiu-se atomicidade dos campos; na 2FN, chaves primárias simples; e na 3FN, separação de perfis RBAC e responsáveis legais em tabelas próprias.
+              </p>
+
+              {/* Visual DER Summary Box inside Report */}
+              <div className="bg-slate-900 text-slate-200 rounded-xl p-4 border border-slate-800 text-xs font-mono space-y-2">
+                <div className="text-blue-400 font-bold flex items-center gap-1.5">
+                  <Database className="w-3.5 h-3.5" />
+                  <span>Diagrama Entidade-Relacionamento (DER Lógico — 3FN)</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px]">
+                  <div className="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
+                    <div><strong className="text-amber-300">tipos_usuario</strong> (PK: id, papel UNIQUE, pode_aprovar_fila)</div>
+                    <div className="text-emerald-400">└── 1:N ──&gt; <strong>usuarios</strong> (PK: id, FK: tipo_usuario_id)</div>
+                  </div>
+                  <div className="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
+                    <div><strong className="text-amber-300">turmas</strong> (PK: id, nome, turno CHECK, FK: professor_regente_id)</div>
+                    <div className="text-emerald-400">└── 1:N ──&gt; <strong>alunos</strong> (PK: id, registro_escolar UNIQUE, FK: turma_id)</div>
+                  </div>
+                  <div className="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
+                    <div><strong className="text-amber-300">responsaveis</strong> (PK: id, nome, grau_parentesco, telefone)</div>
+                    <div className="text-emerald-400">└── 1:N ──&gt; <strong>alunos</strong> (FK: responsavel_id, consentimento_lgpd CHECK)</div>
+                  </div>
+                  <div className="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
+                    <div><strong className="text-amber-300">mensagens</strong> (PK: id, FKs: autor_id, aluno_id, turma_id, status CHECK)</div>
+                    <div className="text-sky-400">• <strong>auditoria_lgpd</strong> (PK: id AUTOINCREMENT, entidade, acao, detalhes)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 6.2 */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold text-slate-900">
+                6.2 Implementação e Manipulação de Dados
+              </h3>
+              <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
+                O esquema DDL foi codificado em <code className="text-xs bg-slate-100 px-1 rounded font-mono">sql/01_schema.sql</code> com chaves primárias, chaves estrangeiras com políticas explícitas (<code className="text-xs bg-slate-100 px-1 rounded font-mono">ON UPDATE CASCADE</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">ON DELETE RESTRICT</code> e <code className="text-xs bg-slate-100 px-1 rounded font-mono">ON DELETE SET NULL</code>), restrições de domínio (<code className="text-xs bg-slate-100 px-1 rounded font-mono">CHECK</code> em turnos, status e flags LGPD) e sete índices de consulta. A carga inicial (<code className="text-xs bg-slate-100 px-1 rounded font-mono">sql/02_seed.sql</code>) insere dados anonimizados para testes, enquanto <code className="text-xs bg-slate-100 px-1 rounded font-mono">sql/03_operations_dml.sql</code> e a API REST (<code className="text-xs bg-slate-100 px-1 rounded font-mono">server.ts</code>) executam operações reais de <code className="text-xs bg-slate-100 px-1 rounded font-mono">INSERT</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">UPDATE</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">DELETE</code> e <code className="text-xs bg-slate-100 px-1 rounded font-mono">SELECT ... INNER JOIN</code>.
+              </p>
+              <pre className="bg-slate-950 text-emerald-300 p-3.5 rounded-xl text-[11px] font-mono overflow-x-auto leading-relaxed">
+{`-- Exemplo real de consulta DML (sql/03_operations_dml.sql)
+SELECT a.registro_escolar, a.nome AS aluno, t.nome AS turma,
+       r.nome AS responsavel, r.telefone, a.consentimento_lgpd
+FROM alunos a
+INNER JOIN turmas t ON a.turma_id = t.id
+INNER JOIN responsaveis r ON a.responsavel_id = r.id
+WHERE a.consentimento_lgpd = 1
+ORDER BY t.nome, a.nome;`}
+              </pre>
+            </div>
+
+            {/* 6.3 */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold text-slate-900">
+                6.3 Uso do Controle de Versão
+              </h3>
+              <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
+                O repositório Git foi inicializado na branch <code className="text-xs bg-slate-100 px-1 rounded font-mono">main</code> com <code className="text-xs bg-slate-100 px-1 rounded font-mono">.gitignore</code> configurado para proteger variáveis <code className="text-xs bg-slate-100 px-1 rounded font-mono">.env</code>, dependências (<code className="text-xs bg-slate-100 px-1 rounded font-mono">node_modules/</code>) e binários locais do banco (<code className="text-xs bg-slate-100 px-1 rounded font-mono">*.db</code>). O desenvolvimento seguiu o modelo de ramificações por funcionalidade (<code className="text-xs bg-slate-100 px-1 rounded font-mono">feature/modelagem-bd</code>, <code className="text-xs bg-slate-100 px-1 rounded font-mono">feature/backend-sqlite</code> e <code className="text-xs bg-slate-100 px-1 rounded font-mono">feature/interface-modulo3</code>), integradas via <code className="text-xs bg-slate-100 px-1 rounded font-mono">git merge --no-ff</code> à <code className="text-xs bg-slate-100 px-1 rounded font-mono">main</code> com mensagens padronizadas em Conventional Commits.
+              </p>
+              <p className="text-xs font-sans text-slate-700">
+                <strong>Link do repositório:</strong>{' '}
+                <a href={githubUrl} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline font-mono">
+                  {githubUrl}
+                </a>
               </p>
             </div>
-            <div>
-              <strong className="font-sans font-bold text-slate-900">5.2 Implementação:</strong>
-              <p className="text-justify indent-8 mt-1">
-                A estruturação do código foi concebida de forma modular: (i) Módulo de Autenticação e RBAC com 5 papéis institucionais; (ii) Módulo de Composição com Injeção Dinâmica de Cabeçalho em tempo real; (iii) Módulo de Fila de Validação Hierárquica com liberação ou rejeição motivada; (iv) Módulo de Gestão Cadastral com checagem de integridade LGPD; e (v) Simulador Móvel de WhatsApp e SMS. A estilização empregou classes utilitárias responsivas do Tailwind CSS com foco em ergonomia visual e alto contraste.
-              </p>
-            </div>
-            <div>
-              <strong className="font-sans font-bold text-slate-900">5.3 Publicação e Versionamento:</strong>
-              <p className="text-justify indent-8 mt-1">
-                O código foi organizado seguindo padrões limpos de versionamento com Git, estruturado para hospedagem no GitHub em <code className="text-xs bg-slate-100 p-1 rounded font-mono text-blue-700">{githubUrl}</code>, acompanhado de arquivo README.md abrangente com instruções de instalação, arquitetura e execução dos testes unitários.
-              </p>
-            </div>
-          </div>
-        </section>
+          </section>
 
-        {/* 6. Resultados Preliminares */}
-        <section className="space-y-3 font-sans">
-          <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
-            6. Resultados Preliminares: Solução Inicial
-          </h2>
-          <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
-            A aplicação web dinâmica encontra-se totalmente funcional e responsiva, demonstrando a concretização de todos os requisitos planejados:
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-xs">
+          {/* 7. Resultados Preliminares: Solução Inicial */}
+          <section className="space-y-3 font-sans">
+            <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
+              7. Resultados Preliminares: Solução Inicial
+            </h2>
+            <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
+              A integração entre o banco relacional SQLite e a interface web encontra-se plenamente operacional, permitindo validar na prática todos os requisitos acadêmicos e extensionistas do Módulo 3:
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+                <span className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                  <Table2 className="w-4 h-4 text-blue-600" />
+                  <span>Estúdio DER & Dicionário de Dados ({totalTables} Tabelas)</span>
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  A aba <strong>Banco de Dados & SQL</strong> exibe em tempo real as {totalTables} entidades normalizadas, suas chaves PK/FK e atualmente contabiliza <strong>{studentCount} alunos</strong>, <strong>{messageCount} comunicados</strong> e <strong>{auditLogsCount} eventos</strong> de auditoria LGPD persistidos em disco.
+                </p>
+              </div>
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+                <span className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                  <Terminal className="w-4 h-4 text-emerald-600" />
+                  <span>Console SQL & CRUD Persistente</span>
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  O editor SQL executa comandos <code className="bg-white px-1 rounded border">SELECT</code>, <code className="bg-white px-1 rounded border">INSERT</code>, <code className="bg-white px-1 rounded border">UPDATE</code> e <code className="bg-white px-1 rounded border">DELETE</code> diretamente no SQLite com verificação ativa de <code className="bg-white px-1 rounded border">FOREIGN KEY</code>, além de formulários CRUD completos na aba <strong>Alunos & CRUD</strong>.
+                </p>
+              </div>
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+                <span className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                  <GitBranch className="w-4 h-4 text-indigo-600" />
+                  <span>Painel Git em Tempo Real ({totalCommits} Commits)</span>
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  A aba <strong>Controle de Versão</strong> consulta o repositório Git local via servidor Express e exibe as branches organizadas, o gráfico de commits semânticos e o fluxo de publicação no GitHub.
+                </p>
+              </div>
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+                <span className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Auditoria LGPD & Testes Unitários</span>
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  Toda operação crítica grava registro na tabela <code className="bg-white px-1 rounded border">auditoria_lgpd</code>, e a suíte automatizada (<code className="bg-white px-1 rounded border">node:test</code>) valida tanto regras RBAC/LGPD quanto os utilitários de proteção do Console SQL.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* 8. Conclusão */}
+          <section className="space-y-2 font-sans">
+            <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
+              8. Conclusão
+            </h2>
+            <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
+              O desenvolvimento do Módulo 3 consolidou o Sistema Escola Conectada (SEC) como uma solução web completa com persistência relacional real e gerenciamento disciplinado de código-fonte. Entre os principais aprendizados adquiridos destacam-se a aplicação prática da normalização até a 3FN para eliminar redundâncias de responsáveis e perfis, a importância da habilitação explícita de chaves estrangeiras e restrições <code className="text-xs bg-slate-100 px-1 rounded font-mono">CHECK</code> para blindar a integridade dos dados escolares, e a organização do histórico em branches temáticas com Conventional Commits no Git. Como melhorias futuras, planeja-se a migração transparente dos scripts SQL para um banco PostgreSQL gerenciado em nuvem quando da expansão para múltiplas unidades da rede municipal, a adoção de autenticação por tokens JWT com hash de senhas e a criação de pipelines de integração contínua (CI) no GitHub Actions para validação automática de migrações SQL e testes unitários.
+            </p>
+          </section>
+
+          {/* 9. Referências */}
+          <section className="space-y-3 font-sans border-t border-slate-200 pt-6">
+            <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
+              9. Referências (ABNT NBR 6023:2018)
+            </h2>
+            <ul className="text-xs text-slate-700 space-y-2 text-justify font-serif">
+              <li>
+                BRASIL. Lei nº 13.709, de 14 de agosto de 2018. <strong>Lei Geral de Proteção de Dados Pessoais (LGPD)</strong>. Brasília, DF: Presidência da República, 2018. Disponível em: &lt;https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm&gt;. Acesso em: 12 nov. 2026.
+              </li>
+              <li>
+                CHACON, Scott; STRAUB, Ben. <strong>Pro Git</strong>. 2. ed. New York: Apress, 2014. Disponível em: &lt;https://git-scm.com/book/en/v2&gt;. Acesso em: 12 nov. 2026.
+              </li>
+              <li>
+                DATE, Christopher J. <strong>Introdução a sistemas de bancos de dados</strong>. 8. ed. Rio de Janeiro: Elsevier, 2004.
+              </li>
+              <li>
+                ELMASRI, Ramez; NAVATHE, Shamkant B. <strong>Sistemas de banco de dados</strong>. 7. ed. São Paulo: Pearson Addison Wesley, 2018.
+              </li>
+              <li>
+                PRESSMAN, Roger S.; MAXIM, Bruce R. <strong>Engenharia de software: uma abordagem profissional</strong>. 9. ed. Porto Alegre: AMGH, 2021.
+              </li>
+              <li>
+                SILBERSCHATZ, Abraham; KORTH, Henry F.; SUDARSHAN, S. <strong>Sistema de banco de dados</strong>. 7. ed. Rio de Janeiro: LTC, 2020.
+              </li>
+              <li>
+                UNIVERSIDADE FEDERAL DE MATO GROSSO DO SUL. <strong>Resolução nº 142, de 21 de dezembro de 2021</strong>: Estabelece as normas de Extensão Universitária no âmbito da UFMS. Campo Grande: UFMS, 2021.
+              </li>
+            </ul>
+          </section>
+
+          {/* 10. Link do Repositório */}
+          <section className="space-y-2 font-sans border-t border-slate-200 pt-5">
+            <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
+              10. Link do Repositório
+            </h2>
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+              <div>
+                <span className="text-slate-500 font-medium block">
+                  Repositório GitHub contendo código-fonte, scripts SQL e documentação:
+                </span>
+                <a
+                  href={githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono font-bold text-blue-700 underline text-sm"
+                >
+                  {githubUrl}
+                </a>
+              </div>
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900 text-white font-mono text-[11px] self-start sm:self-center">
+                branch: {gitInfo?.currentBranch || 'main'} • {totalCommits} commits
+              </span>
+            </div>
+          </section>
+        </article>
+      ) : (
+        /* MODULE 2 REPORT (Preserved for reference) */
+        <article className="bg-white rounded-2xl border border-slate-300 shadow-md p-6 sm:p-10 max-w-5xl mx-auto space-y-8 font-serif text-slate-800 leading-relaxed print:shadow-none print:border-none print:p-0">
+          <header className="text-center border-b border-slate-200 pb-6 space-y-2 font-sans">
+            <div className="inline-block px-3 py-1 rounded bg-blue-50 text-blue-900 font-bold text-xs tracking-wider uppercase mb-1">
+              Universidade Federal de Mato Grosso do Sul — EaD / AGEAD
+            </div>
+            <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 uppercase tracking-tight">
+              Template do Estudante — Desenvolvimento Web com Frameworks e HTML/CSS
+            </h1>
+            <p className="text-sm font-semibold text-slate-600">
+              Avaliação do Módulo 2 — Projeto Integrador de Tecnologia da Informação (UFMS Digital)
+            </p>
+          </header>
+
+          <section className="bg-slate-50 p-4 sm:p-6 rounded-xl border border-slate-200 font-sans text-xs space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <span className="text-slate-500 font-medium">Projeto de Extensão:</span>
+                <p className="font-bold text-slate-900">Programa de Extensão UFMS Digital (95DX7.200525)</p>
+              </div>
+              <div>
+                <span className="text-slate-500 font-medium">Nome Completo:</span>
+                <p className="font-bold text-slate-900">Jefferson Soares Alves Salles</p>
+              </div>
+              <div>
+                <span className="text-slate-500 font-medium">Local de Realização:</span>
+                <p className="font-bold text-slate-900">EMEIEF Professor José Antônio de Miranda</p>
+              </div>
+              <div>
+                <span className="text-slate-500 font-medium">Repositório GitHub:</span>
+                <p className="font-bold text-blue-700 underline font-mono text-[11px]">{githubUrl}</p>
+              </div>
+            </div>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-base font-bold font-sans text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
+              Resumo (Módulo 2 — Front-End Web)
+            </h2>
+            <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8">
+              O relatório do Módulo 2 documentou o desenvolvimento da aplicação web dinâmica e responsiva do Sistema Escola Conectada (SEC) em React 19, TypeScript, Vite e Tailwind CSS, com controle de acesso RBAC, fila hierárquica de aprovação para docentes, injeção automática de cabeçalho e simulador de recepção móvel. No Módulo 3 atual, esta base web foi evoluída com persistência SQL real e versionamento Git completo.
+            </p>
+          </section>
+
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans text-xs">
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
               <span className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
                 <Layers className="w-4 h-4 text-blue-600" />
                 <span>Controle de Acesso RBAC Validado</span>
               </span>
               <p className="text-slate-600">
-                O seletor de perfil permite alternar instantaneamente entre Direção, Pedagógico, Coordenação, Professor e Secretaria. O formulário oculta categorias administrativas para docentes e bloqueia auto-aprovação.
+                Alternância entre Direção, Pedagógico, Coordenação, Professor e Secretaria com bloqueio automático de auto-aprovação docente.
               </p>
             </div>
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
@@ -337,61 +637,12 @@ A transposição dos modelos de engenharia para uma aplicação web dinâmica e 
                 <span>Injeção Dinâmica de Cabeçalho</span>
               </span>
               <p className="text-slate-600">
-                A montagem algorítmica do cabeçalho cruza aluno, turma, turno e professor regente dos legados, exibindo em tempo real o formato exato que será entregue nos smartphones dos pais.
+                Montagem algorítmica do cabeçalho cruzando aluno, turma, turno e professor regente em tempo real.
               </p>
             </div>
-          </div>
-        </section>
-
-        {/* 7. Conclusão */}
-        <section className="space-y-3 font-sans">
-          <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
-            7. Conclusão
-          </h2>
-          <p className="text-justify text-sm text-slate-700 leading-relaxed indent-8 font-serif">
-            A execução do Módulo 2 atendeu com êxito às exigências pedagógicas e técnicas do Projeto Integrador da UFMS Digital. A aplicação web dinâmica do Sistema Escola Conectada (SEC) comprova como a simbiose entre engenharia de software de ponta (React, TypeScript, Tailwind) e imersão social na rede pública de ensino é capaz de superar gargalos burocráticos históricos. A erradicação de 2.000 folhas mensais de papel aliada ao tempo de entrega imediato (1,8s) estabelece um novo paradigma de gestão e aproxima as famílias do cotidiano escolar.
-          </p>
-        </section>
-
-        {/* 8. Referências */}
-        <section className="space-y-3 font-sans border-t border-slate-200 pt-6">
-          <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider border-l-4 border-l-blue-600 pl-3">
-            8. Referências (Normas ABNT NBR 6023:2018)
-          </h2>
-          <ul className="text-xs text-slate-700 space-y-2 text-justify font-serif">
-            <li>
-              BRASIL. Lei nº 13.709, de 14 de agosto de 2018. <strong>Lei Geral de Proteção de Dados Pessoais (LGPD)</strong>. Brasília, DF: Presidência da República, [2018]. Disponível em: &lt;http://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm&gt;. Acesso em: 30 mar. 2026.
-            </li>
-            <li>
-              DELAMARO, Márcio Eduardo; MALDONADO, José Carlos; JINO, Mario. <strong>Introdução ao teste de software</strong>. 2. ed. Rio de Janeiro: Elsevier, 2016.
-            </li>
-            <li>
-              GUEDES, Gilleanes T. A. <strong>UML 2: guia prático</strong>. 3. ed. São Paulo: Érica, 2018.
-            </li>
-            <li>
-              LUCENA, Simone. Culturas digitais e tecnologias móveis na educação. <strong>Cadernos de Pesquisa</strong>, São Paulo, v. 46, n. 161, p. 800-824, set. 2016.
-            </li>
-            <li>
-              PRESSMAN, Roger S.; MAXIM, Bruce R. <strong>Engenharia de software: uma abordagem profissional</strong>. 9. ed. Porto Alegre: AMGH, 2021.
-            </li>
-            <li>
-              SANTANA, Miguel das Virgens de et al. Insight forms: automated analysis of educational feedback using python and generative AI. <strong>Observatorio de la Economía Latinoamericana</strong>, v. 24, n. 2, p. 1-19, 2026.
-            </li>
-            <li>
-              SANTOS, J. B. et al. O uso do WhatsApp como ferramenta de comunicação entre escola e família. <strong>Revista de Educação e Tecnologias</strong>, v. 5, n. 1, 2020.
-            </li>
-            <li>
-              SOMMERVILLE, Ian. <strong>Engenharia de software</strong>. 10. ed. São Paulo: Pearson Education do Brasil, 2019.
-            </li>
-            <li>
-              UNIVERSIDADE FEDERAL DE MATO GROSSO DO SUL. <strong>Resolução nº 142, de 21 de dezembro de 2021</strong>: Estabelece as normas de Extensão Universitária no âmbito da UFMS. Campo Grande: UFMS, 2021.
-            </li>
-            <li>
-              WAZLAWICK, Raul Sidnei. <strong>Engenharia de software: conceitos e práticas</strong>. Rio de Janeiro: Elsevier, 2013.
-            </li>
-          </ul>
-        </section>
-      </article>
+          </section>
+        </article>
+      )}
     </div>
   );
 };

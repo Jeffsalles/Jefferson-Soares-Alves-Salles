@@ -87,3 +87,71 @@ export interface SystemMetrics {
   alunosAtendidos: number;
   mensagensAguardandoValidacao: number;
 }
+
+export interface AuditLogEntry {
+  id: number;
+  entidade: string;
+  entidade_id: string;
+  acao: 'INSERT' | 'UPDATE' | 'DELETE' | 'DISPARO' | 'APROVACAO' | 'REPROVACAO';
+  detalhes: string;
+  usuario_responsavel: string;
+  executado_em: string;
+}
+
+export interface ColumnSchemaInfo {
+  cid: number;
+  name: string;
+  type: string;
+  notnull: number;
+  dflt_value: string | null;
+  pk: number;
+}
+
+export interface ForeignKeyInfo {
+  id: number;
+  table: string;
+  from: string;
+  to: string;
+  on_update: string;
+  on_delete: string;
+}
+
+export interface TableSchemaInfo {
+  name: string;
+  rowCount: number;
+  columns: ColumnSchemaInfo[];
+  foreignKeys: ForeignKeyInfo[];
+}
+
+export interface SqlExecutionResult {
+  ok: boolean;
+  kind: 'QUERY' | 'MUTATION';
+  statementType: string;
+  columns: string[];
+  rows: Record<string, unknown>[];
+  changes: number;
+  lastInsertRowid: number | string | null;
+  durationMs: number;
+  error?: string;
+}
+
+export interface GitCommitInfo {
+  hash: string;
+  shortHash: string;
+  author: string;
+  date: string;
+  subject: string;
+  refs: string;
+  type: string;
+}
+
+export interface GitInfoResponse {
+  available: boolean;
+  currentBranch: string;
+  branches: string[];
+  totalCommits: number;
+  commits: GitCommitInfo[];
+  statusLines: string[];
+  remoteUrl: string;
+}
+
