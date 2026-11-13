@@ -116,6 +116,3 @@ Testes inclusos:
 
 ---
 
-## 📜 7. Licença e Créditos
-
-Projeto desenvolvido como parte dos requisitos avaliativos do **Programa de Extensão UFMS Digital**, sob orientação do Prof. Dr. Hudson Silva Borges e corpo docente do curso de Tecnologia da Informação da UFMS. Licenciado sob os termos da licença Creative Commons Atribuição 4.0 Internacional (CC BY 4.0).
